@@ -1,0 +1,38 @@
+version: "3.9"
+
+services:
+  api:
+    build: .
+    container_name: smart-file-storage-api
+    ports:
+      - "8000:8000"
+    environment:
+      APP_ENV: "docker-local"
+      LOCAL_UPLOAD_DIR: "/data/uploads"
+      # AWS placeholders (not used yet)
+      # AWS_REGION: "us-east-1"
+      # S3_BUCKET_NAME: "your-s3-bucket-name"
+      # DB_HOST: "postgres"
+      # DB_PORT: "5432"
+      # DB_NAME: "file_storage"
+      # DB_USER: "postgres"
+      # DB_PASSWORD: "postgres"
+    volumes:
+      - ./data/uploads:/data/uploads
+    restart: unless-stopped
+
+  # postgres:
+  #   image: postgres:15
+  #   container_name: smart-file-storage-db
+  #   environment:
+  #     POSTGRES_DB: file_storage
+  #     POSTGRES_USER: postgres
+  #     POSTGRES_PASSWORD: postgres
+  #   ports:
+  #     - "5432:5432"
+  #   volumes:
+  #     - pgdata:/var/lib/postgresql/data
+  #   restart: unless-stopped
+
+#volumes:
+#  pgdata:
