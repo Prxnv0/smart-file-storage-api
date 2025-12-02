@@ -2,15 +2,21 @@ from typing import List
 
 from fastapi import APIRouter, UploadFile, File, HTTPException, status
 
+from src.config import settings
 from src.services.metadata import FileMetadataService
 from src.services.storage import LocalStorageService
+from src.services.storage_s3 import S3StorageService
 
 router = APIRouter(prefix="/files", tags=["files"])
 
 
 # Initialize services (for now simple instances; can be wired via DI later)
 metadata_service = FileMetadataService()
-storage_service = LocalStorageService()
+
+if settings.STORAGE_BACKEND.lower() == "s3":
+    storage_service = S3StorageService()
+else:
+    storage_service = LocalStorageService()
 
 
 @router.get("", summary="List uploaded files")
