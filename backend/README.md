@@ -171,6 +171,93 @@ Example response:
 
 ---
 
+## Deploying on an EC2 Instance (Docker)
+
+You can run this backend on a single EC2 instance using Docker and Docker Compose. This uses the **local storage backend** by default.
+
+### 1. Launch EC2
+
+In the AWS console:
+
+- Launch an instance (e.g. Amazon Linux 2023 or Ubuntu 22.04)
+- Instance type: `t3.micro` or `t2.micro` (depending on your quota)
+- Security group:
+  - Allow **SSH (22)** from your IP
+  - Allow **HTTP** on port **8000** (or 80 if you later front it with a reverse proxy)
+
+### 2. SSH into the instance
+
+```bash
+ssh -i path/to/your-key.pem ec2-user@EC2_PUBLIC_IP  # or ubuntu@EC2_PUBLIC_IP
+```
+
+### 3. Install Docker (example for Amazon Linux)
+
+```bash
+sudo yum update -y
+sudo yum install -y docker
+sudo service docker start
+sudo usermod -aG docker ec2-user  # re-login after this so group takes effect
+```
+
+Verify Docker:
+
+```bash
+docker version
+```
+
+If Docker Compose plugin is not installed, install it per the official docs, or use the packaged `docker compose` if available.
+
+### 4. Get the project onto EC2
+
+Clone from GitHub (recommended):
+
+```bash
+git clone https://github.com/<your-username>/smart-file-storage-api.git
+cd smart-file-storage-api/backend
+```
+
+### 5. Configure environment
+
+Copy the example file and adjust as needed:
+
+```bash
+cp .env.example .env
+```
+
+Minimal settings for EC2 with local storage:
+
+```env
+APP_ENV=ec2
+STORAGE_BACKEND=local
+LOCAL_UPLOAD_DIR=./data/uploads
+AWS_REGION=us-east-1
+S3_BUCKET_NAME=smart-file-storage-psingh-uploads  # optional, for future S3 use
+```
+
+### 6. Run the container
+
+From `backend/`:
+
+```bash
+docker compose up --build -d
+```
+
+Check logs:
+
+```bash
+docker compose logs -f
+```
+
+With the security group allowing port 8000:
+
+- `http://EC2_PUBLIC_IP:8000/health`
+- `http://EC2_PUBLIC_IP:8000/docs`
+
+Uploads will be stored on the EC2 instance under `backend/data/uploads` inside the container volume mount. S3 and RDS can be enabled later by switching `STORAGE_BACKEND` and configuring proper IAM roles and connection settings.
+
+---
+
 ## Ready for AWS Integration
 
 This starter is structured for later integration with:

@@ -17,22 +17,26 @@ services:
       # DB_NAME: "file_storage"
       # DB_USER: "postgres"
       # DB_PASSWORD: "postgres"
+    env_file:
+      - .env
     volumes:
       - ./data/uploads:/data/uploads
     restart: unless-stopped
+    depends_on:
+      - postgres
 
-  # postgres:
-  #   image: postgres:15
-  #   container_name: smart-file-storage-db
-  #   environment:
-  #     POSTGRES_DB: file_storage
-  #     POSTGRES_USER: postgres
-  #     POSTGRES_PASSWORD: postgres
-  #   ports:
-  #     - "5432:5432"
-  #   volumes:
-  #     - pgdata:/var/lib/postgresql/data
-  #   restart: unless-stopped
+  postgres:
+    image: postgres:15
+    container_name: smart-file-storage-db
+    environment:
+      POSTGRES_DB: file_storage
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+    ports:
+      - "5432:5432"
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+    restart: unless-stopped
 
-#volumes:
-#  pgdata:
+volumes:
+  pgdata:
